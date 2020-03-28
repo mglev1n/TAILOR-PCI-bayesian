@@ -310,7 +310,7 @@ server <- function(input, output, session) {
     url_paper <- a("ACC", 
                    href="https://www.acc.org/latest-in-cardiology/clinical-trials/2020/03/26/19/53/tailor-pci")
     url_github <- a("GitHub", href="https://github.com/mglev1n/TAILOR-PCI-bayesian")
-    url_andromeda <- a("bayesian reanalysis", 
+    url_andromeda <- a("Bayesian reanalysis", 
                        href="https://benjamin-andrew.shinyapps.io/andromeda_shock_bayesian/")
     url_email <- a("michael.levin@pennmedicine.upenn.edu", 
                    href="mailto:michael.levin@pennmedicine.upenn.edu")
