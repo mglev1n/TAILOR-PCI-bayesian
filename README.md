@@ -6,5 +6,5 @@ This is an interactive Bayesian re-analysis of the TAILOR-PCI trial presented at
 
 
 Trial Summary: [ACC](https://www.acc.org/latest-in-cardiology/clinical-trials/2020/03/26/19/53/tailor-pci)  
-Questions & Improvements: (michael.levin@pennmedicine.upenn.edu)
+Questions & Improvements: michael.levin@pennmedicine.upenn.edu
 
