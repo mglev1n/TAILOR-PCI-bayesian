@@ -1,7 +1,8 @@
-# ANDROMDA-SHOCK Bayesian Re-Analysis
-# Adapted from code by Dan Lane
+# TAYLOR-PCI Bayesian Re-Analysis
+# Adapted from code by Dan Lane and Ben Andrew
 
 library(shiny)
+library(RColorBrewer)
 library(tidyverse)
 
 ui <- bootstrapPage(
@@ -80,19 +81,6 @@ ui <- bootstrapPage(
                                 
                                 # Show a plot of the generated distributions
                                 mainPanel(plotOutput("distPlot")
-                                ),
-                                
-                                fluidRow(column(12,
-                                                hr(),
-                                                h4("About this Application:"),
-                                                uiOutput("link_twitter"),
-                                                br(),
-                                                uiOutput("link_paper"),
-                                                uiOutput("link_github"),
-                                                uiOutput("link_email"),
-                                                br(),
-                                                renderText(expr = output$paper_link)
-                                )
                                 )
                             )
                    ),
@@ -118,7 +106,22 @@ ui <- bootstrapPage(
                                 )
                                 )
                             )
-                   )
+                   ),
+                  tabPanel("About",
+                           fluidPage(
+                               fluidRow(column(12,
+                                               hr(),
+                                               h4("About this Application:"),
+                                               uiOutput("link_twitter"),
+                                               br(),
+                                               uiOutput("link_paper"),
+                                               uiOutput("link_github"),
+                                               uiOutput("link_email"),
+                                               br(),
+                                               renderText(expr = output$paper_link)
+                               )
+                               )
+                           ))
         )
     )
 )
@@ -211,8 +214,24 @@ server <- function(input, output, session) {
     # Credible interval
     ci_in <- reactive({input$ci})
     
+    lower_cred <- reactive({
+        round(exp(qnorm((1 - (ci_in()/100)) / 2, post_theta(), post_sd())), 2)
+    })
+    
+    upper_cred <- reactive({
+        round(exp(qnorm(1 - (1 - (ci_in()/100)) / 2, post_theta(), post_sd())), 2)
+    })
+    
+    mid_cred <- reactive({
+        round(exp(qnorm(0.5, post_theta(), post_sd())), 2)
+    })
+    
     # HR Post
     hr_post <- reactive({input$hr_post})
+    
+    like_col <- brewer.pal(3, "Dark2")[1]
+    post_col <- brewer.pal(3, "Dark2")[2]
+    prior_col <- brewer.pal(3, "Dark2")[3]
     
     # Dynamic Plot
     output$distPlot <- renderPlot({
@@ -222,6 +241,22 @@ server <- function(input, output, session) {
                        color = "grey50", alpha = 0.75) + 
             geom_line(aes(color = dist),
                       size = 1.1) + 
+            geom_ribbon(data = plot_data() %>%
+                            filter(dist == "posterior",
+                                   x < hr_post()),
+                        aes(ymin = 1, ymax = y, x = x),
+                        alpha = 0.5, fill = post_col) + 
+            geom_vline(xintercept = hr_post(),
+                       color = post_col,
+                       size = 0.75, linetype = "dashed", 
+                       alpha = 0.75) + 
+            geom_segment(aes(y = 1, yend = 1,
+                             x = lower_cred(), xend = upper_cred()),
+                         size = 1.5,
+                         alpha = 1) + 
+            geom_point(aes(x = mid_cred(), y = 1),
+                       size = 2.5,
+                       alpha = 1) +
             scale_color_brewer(name = NULL, type = "qual", palette = "Dark2",
                                breaks = c("prior", "likelihood", "posterior"),
                                labels = c("Prior", "Likelihood", "Posterior")) + 
